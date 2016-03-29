@@ -503,7 +503,7 @@ var DBSYNC = {
 
         var nb = members.length;
         for (var i = 0; i < nb; i++) {
-            sql += '"' + members[i] + '" = "' + values[i] + '"';
+            sql += '"' + members[i] + '" = "' + self._sql_escape_string(values[i]) + '"';
             if (i < nb - 1) {
                 sql += ', ';
             }
@@ -511,6 +511,34 @@ var DBSYNC = {
 
         return sql;
     },
+    _sql_escape_string: function (val) {
+            if (val == null) {
+                return;
+            }
+            val = val.replace(/[\0\n\r\b\t\\'"\x1a]/g, function (s) {
+                switch (s) {
+                    case "\0":
+                        return "\\0";
+                    case "\n":
+                        return "\\n";
+                    case "\r":
+                        return "\\r";
+                    case "\b":
+                        return "\\b";
+                    case "\t":
+                        return "\\t";
+                    case "\x1a":
+                        return "\\Z";
+                    case "'":
+                        return "''";
+                    case '"':
+                        return '""';
+                    default:
+                        return "\\" + s;
+                }
+            });
+            return val;
+     },
     _getMembersValue: function(obj, members) {
         var memberArray = [];
         for (var i = 0; i < members.length; i++) {
